@@ -143,6 +143,34 @@ class data_controller extends \core_customfield\data_controller {
     }
 
     /**
+     * Returns value in a human-readable format
+     *
+     * @return array|null array of strings or null if empty
+     */
+    public function export_raw_urls() {
+
+        $context = $this->get_context();
+        $fs = get_file_storage();
+
+        $files = $fs->get_area_files($context->id, 'customfield_file', "value",
+            $this->get('id'),
+            'timemodified',
+            false);
+
+        $data = [];
+
+        foreach ($files as $file) {
+            $url = moodle_url::make_pluginfile_url($file->get_contextid(),
+                $file->get_component(), $file->get_filearea(), $file->get_itemid(), $file->get_filepath(),
+                $file->get_filename());
+            $filename = $file->get_filename();
+            $data[] = (object)['url' => $url->out(false), 'filename' => $filename];
+        }
+
+        return $data;
+    }
+
+    /**
      * Delete data
      *
      * @return bool
